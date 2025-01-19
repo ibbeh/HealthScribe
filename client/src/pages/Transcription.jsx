@@ -5,12 +5,11 @@
 //   const [transcription, setTranscription] = useState("");
 //   const [isTranscribing, setIsTranscribing] = useState(false);
 
-//   const handleRecordingComplete = async (blob) => {
+//   const handleFileUpload = async (file) => {
 //     setIsTranscribing(true);
 
-//     // Prepare the file to send to the backend
 //     const formData = new FormData();
-//     formData.append("file", blob, "recording.webm");
+//     formData.append("file", file);
 
 //     try {
 //       const response = await fetch("/api/upload", {
@@ -30,6 +29,10 @@
 //     } finally {
 //       setIsTranscribing(false);
 //     }
+//   };
+
+//   const handleRecordingComplete = async (blob) => {
+//     await handleFileUpload(blob);
 //   };
 
 //   const mockPatients = [
@@ -58,6 +61,7 @@
 //         <div className="grid lg:grid-cols-3 gap-8">
 //           <div className="lg:col-span-2 space-y-6">
 //             <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+//             <FileUploader onFileUpload={handleFileUpload} />
 //             <TranscriptionView
 //               transcription={transcription}
 //               isLoading={isTranscribing}
@@ -148,6 +152,30 @@
 //   );
 // };
 
+// // FileUploader.js
+// export const FileUploader = ({ onFileUpload }) => {
+//   const handleFileChange = (event) => {
+//     const file = event.target.files[0];
+//     if (file) {
+//       onFileUpload(file);
+//     }
+//   };
+
+//   return (
+//     <div className="p-4 bg-white shadow rounded-lg space-y-4">
+//       <label className="block text-sm font-medium text-gray-700">
+//         Upload a Recording
+//       </label>
+//       <input
+//         type="file"
+//         accept="audio/*"
+//         onChange={handleFileChange}
+//         className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+//       />
+//     </div>
+//   );
+// };
+
 // // TranscriptionView.js
 // export const TranscriptionView = ({ transcription, isLoading }) => {
 //   return (
@@ -160,8 +188,8 @@
 //           <p className="text-gray-800">{transcription}</p>
 //         ) : (
 //           <p className="text-gray-500 italic">
-//             No transcription available yet. Start recording to see the
-//             transcription here.
+//             No transcription available yet. Start recording or upload a file to
+//             see the transcription here.
 //           </p>
 //         )}
 //       </div>
@@ -195,12 +223,18 @@
 //     </button>
 //   );
 // };
+
 import React, { useState, useRef } from "react";
 import { Plus } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 const Transcription = () => {
   const [transcription, setTranscription] = useState("");
+  const [soapNotesMD, setSoapNotesMD] = useState("");
   const [isTranscribing, setIsTranscribing] = useState(false);
+  const [healthReport, setHealthReport] = useState("");
+  const [summary, setSummary] = useState("");
+  const [view, setView] = useState("transcription"); // Options: transcription, soap_notes, health_report
 
   const handleFileUpload = async (file) => {
     setIsTranscribing(true);
@@ -219,8 +253,11 @@ const Transcription = () => {
       }
 
       const data = await response.json();
-      console.log(data)
-      setTranscription(data.soap_notes_md);
+      setTranscription(data.transcription);
+      setSoapNotesMD(data.soap_notes_md || "");
+      setHealthReport(data.health_report || "");
+      setSummary(data.summary || "");
+
     } catch (error) {
       console.error("Error during transcription:", error);
       setTranscription("An error occurred while transcribing the audio.");
@@ -244,9 +281,7 @@ const Transcription = () => {
       <div className="container py-8 space-y-8 animate-fade-in">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Medical Transcription
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900">HealthScript</h1>
             <p className="text-gray-600 mt-1">
               Record and manage patient appointments
             </p>
@@ -260,10 +295,83 @@ const Transcription = () => {
           <div className="lg:col-span-2 space-y-6">
             <AudioRecorder onRecordingComplete={handleRecordingComplete} />
             <FileUploader onFileUpload={handleFileUpload} />
-            <TranscriptionView
-              transcription={transcription}
-              isLoading={isTranscribing}
-            />
+
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setView("transcription")}
+                className={`px-4 py-2 rounded text-white font-medium shadow ${
+                  view === "transcription"
+                    ? "bg-blue-500"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}>
+                Transcription
+              </button>
+              <button
+                onClick={() => setView("soap_notes")}
+                className={`px-4 py-2 rounded text-white font-medium shadow ${
+                  view === "soap_notes"
+                    ? "bg-blue-500"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}>
+                SOAP Notes
+              </button>
+              <button
+                onClick={() => setView("health_report")}
+                className={`px-4 py-2 rounded text-white font-medium shadow ${
+                  view === "health_report"
+                    ? "bg-blue-500"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}>
+                Health Report
+              </button>
+              <button
+                onClick={() => setView("summary")}
+                className={`px-4 py-2 rounded text-white font-medium shadow ${
+                  view === "summary"
+                    ? "bg-blue-500"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}>
+                Summary
+              </button>
+            </div>
+
+            {view === "transcription" && (
+              <TranscriptionView
+                transcription={transcription}
+                isLoading={isTranscribing}
+              />
+            )}
+
+            {view === "soap_notes" && (
+              <div className="p-4 bg-white rounded shadow">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  SOAP Notes
+                </h2>
+                <ReactMarkdown className="mt-2 text-gray-800">
+                  {soapNotesMD || "No SOAP notes available."}
+                </ReactMarkdown>
+              </div>
+            )}
+
+            {view === "health_report" && (
+              <div className="p-4 bg-white rounded shadow">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Health Report
+                </h2>
+                <ReactMarkdown className="mt-2 text-gray-800">
+                  {healthReport || "No health report available."}
+                </ReactMarkdown>
+              </div>
+            )}
+
+            {view === "summary" && (
+              <div className="p-4 bg-white rounded shadow">
+                <h2 className="text-lg font-semibold text-gray-900">Summary</h2>
+                <ReactMarkdown className="mt-2 text-gray-800">
+                  {summary || "No summary available."}
+                </ReactMarkdown>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">
