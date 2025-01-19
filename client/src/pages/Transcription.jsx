@@ -257,6 +257,7 @@ const Transcription = () => {
       setSoapNotesMD(data.soap_notes_md || "");
       setHealthReport(data.health_report || "");
       setSummary(data.summary || "");
+
     } catch (error) {
       console.error("Error during transcription:", error);
       setTranscription("An error occurred while transcribing the audio.");
