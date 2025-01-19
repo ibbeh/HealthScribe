@@ -1,11 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  // 1) Points Tailwind at your files for purge (if using older Tailwind) or content scanning
   content: [
-    "./src/**/*.{js,jsx,ts,tsx}", // Adjust the paths to match your project structure
+    "./src/**/*.{js,jsx,ts,tsx}",   // Adjust to your actual React file paths
     "./public/index.html",
   ],
   theme: {
-    extend: {},
+    extend: {
+      // Customize your theme here if needed
+    },
   },
-  plugins: [],
+  // 2) Add the Typography plugin here
+  plugins: [
+    require("@tailwindcss/typography"),
+  ],
 };

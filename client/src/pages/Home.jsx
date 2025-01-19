@@ -79,7 +79,7 @@ export default function HomePage() {
             Ready to Streamline Your Practice?
           </h2>
           <p className="text-gray-600 mb-8">
-            Join thousands of healthcare professionals who trust HealthScripe
+            Join thousands of healthcare professionals who trust HealthScribe
             for their documentation needs.
           </p>
           <Link

@@ -6,7 +6,9 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from api.transcription import TranscriptionService
 from generate_soap_notes import generate_soap_notes
-from flask_cors import CORS  # <-- Import flask_cors
+from generate_summary import generate_summary
+from generate_health_report import generate_health_report
+from flask_cors import CORS
 
 # Load environment variables
 load_dotenv()
@@ -40,8 +42,8 @@ def upload_and_transcribe():
     2. Validate type.
     3. Save securely.
     4. Transcribe with GROQ.
-    5. Generate SOAP notes with LangChain+Groq.
-    6. Return JSON response containing transcription + SOAP notes.
+    5. Generate SOAP notes, summary, health report.
+    6. Return JSON response containing transcription + all results.
     """
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
@@ -66,14 +68,24 @@ def upload_and_transcribe():
         transcription_text = transcription_result.get("text", "No transcription available")
 
         # 3. Generate SOAP notes
-        prompt_path = os.path.join("prompts", "soap_notes_prompt.txt")
-        soap_notes = generate_soap_notes(transcription_text, prompt_path)
+        soap_prompt_path = os.path.join("prompts", "soap_notes_prompt.txt")
+        soap_notes_md = generate_soap_notes(transcription_text, soap_prompt_path)
 
-        # 4. Return JSON
+        # 4. Generate Summary
+        summary_prompt_path = os.path.join("prompts", "summary_prompt.txt")
+        summary_md = generate_summary(transcription_text, summary_prompt_path)
+
+        # 5. Generate Health Report
+        health_prompt_path = os.path.join("prompts", "health_report_prompt.txt")
+        health_report_md = generate_health_report(transcription_text, health_prompt_path)
+
+        # 6. Return JSON
         return jsonify({
             "filename": filename,
             "transcription": transcription_text,
-            "soap_notes_md": soap_notes
+            "soap_notes_md": soap_notes_md,
+            "summary_md": summary_md,
+            "health_report_md": health_report_md
         }), 200
 
     except Exception as e:
