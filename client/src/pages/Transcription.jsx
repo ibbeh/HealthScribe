@@ -1,5 +1,4 @@
 // import React, { useState, useRef } from "react";
-
 // import { Plus } from "lucide-react";
 
 // const Transcription = () => {
@@ -8,14 +7,29 @@
 
 //   const handleRecordingComplete = async (blob) => {
 //     setIsTranscribing(true);
-//     // Here we would normally send the blob to a backend service
-//     // For now, we'll simulate a delay and set a mock transcription
-//     setTimeout(() => {
-//       setTranscription(
-//         "Patient reports experiencing mild headaches for the past week. Blood pressure is normal at 120/80. Recommended rest and hydration, follow-up in two weeks if symptoms persist."
-//       );
+
+//     // Prepare the file to send to the backend
+//     const formData = new FormData();
+//     formData.append("file", blob, "recording.webm");
+
+//     try {
+//       const response = await fetch("/api/upload", {
+//         method: "POST",
+//         body: formData,
+//       });
+
+//       if (!response.ok) {
+//         throw new Error("Failed to transcribe audio. Please try again.");
+//       }
+
+//       const data = await response.json();
+//       setTranscription(data.transcription);
+//     } catch (error) {
+//       console.error("Error during transcription:", error);
+//       setTranscription("An error occurred while transcribing the audio.");
+//     } finally {
 //       setIsTranscribing(false);
-//     }, 2000);
+//     }
 //   };
 
 //   const mockPatients = [
@@ -37,8 +51,7 @@
 //             </p>
 //           </div>
 //           <Button className="bg-medical-600 hover:bg-medical-700">
-//             <Plus className="w-4 h-4 mr-2" />
-//             New Patient
+//             <Plus className="w-4 h-4 mr-2" /> New Patient
 //           </Button>
 //         </header>
 
@@ -74,7 +87,6 @@
 // export default Transcription;
 
 // // AudioRecorder.js
-
 // export const AudioRecorder = ({ onRecordingComplete }) => {
 //   const [isRecording, setIsRecording] = useState(false);
 //   const [audioURL, setAudioURL] = useState(null);
@@ -137,7 +149,6 @@
 // };
 
 // // TranscriptionView.js
-
 // export const TranscriptionView = ({ transcription, isLoading }) => {
 //   return (
 //     <div className="p-4 bg-white rounded shadow">
@@ -159,7 +170,6 @@
 // };
 
 // // PatientCard.js
-
 // export const PatientCard = ({ name, lastVisit, documentCount, onClick }) => {
 //   return (
 //     <div
@@ -176,7 +186,6 @@
 // };
 
 // // Button.js
-
 // export const Button = ({ children, className, ...props }) => {
 //   return (
 //     <button
@@ -193,12 +202,11 @@ const Transcription = () => {
   const [transcription, setTranscription] = useState("");
   const [isTranscribing, setIsTranscribing] = useState(false);
 
-  const handleRecordingComplete = async (blob) => {
+  const handleFileUpload = async (file) => {
     setIsTranscribing(true);
 
-    // Prepare the file to send to the backend
     const formData = new FormData();
-    formData.append("file", blob, "recording.webm");
+    formData.append("file", file);
 
     try {
       const response = await fetch("/api/upload", {
@@ -218,6 +226,10 @@ const Transcription = () => {
     } finally {
       setIsTranscribing(false);
     }
+  };
+
+  const handleRecordingComplete = async (blob) => {
+    await handleFileUpload(blob);
   };
 
   const mockPatients = [
@@ -246,6 +258,7 @@ const Transcription = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
             <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+            <FileUploader onFileUpload={handleFileUpload} />
             <TranscriptionView
               transcription={transcription}
               isLoading={isTranscribing}
@@ -336,6 +349,30 @@ export const AudioRecorder = ({ onRecordingComplete }) => {
   );
 };
 
+// FileUploader.js
+export const FileUploader = ({ onFileUpload }) => {
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      onFileUpload(file);
+    }
+  };
+
+  return (
+    <div className="p-4 bg-white shadow rounded-lg space-y-4">
+      <label className="block text-sm font-medium text-gray-700">
+        Upload a Recording
+      </label>
+      <input
+        type="file"
+        accept="audio/*"
+        onChange={handleFileChange}
+        className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+      />
+    </div>
+  );
+};
+
 // TranscriptionView.js
 export const TranscriptionView = ({ transcription, isLoading }) => {
   return (
@@ -348,8 +385,8 @@ export const TranscriptionView = ({ transcription, isLoading }) => {
           <p className="text-gray-800">{transcription}</p>
         ) : (
           <p className="text-gray-500 italic">
-            No transcription available yet. Start recording to see the
-            transcription here.
+            No transcription available yet. Start recording or upload a file to
+            see the transcription here.
           </p>
         )}
       </div>

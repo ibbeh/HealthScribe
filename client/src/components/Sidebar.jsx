@@ -25,7 +25,7 @@ export default function Sidebar() {
     <div className="fixed w-64 h-full bg-white border-r border-gray-200 p-4">
       <div className="flex items-center gap-2 mb-8">
         <FileText className="h-6 w-6 text-blue-600" />
-        <h1 className="text-xl font-bold text-gray-800">MedTranscribe</h1>
+        <h1 className="text-xl font-bold text-gray-800">HealthScripe</h1>
       </div>
 
       <nav className="space-y-2">
