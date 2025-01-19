@@ -1,3 +1,5 @@
+# api/transcription.py
+
 import os
 from groq import Groq
 from dotenv import load_dotenv
@@ -20,6 +22,7 @@ class TranscriptionService:
     def transcribe_audio(self, file_path, language="en", prompt=None, response_format="json", temperature=0.0):
         """
         Transcribes an audio file using GROQ's transcription API.
+        Returns a dictionary with the transcription data.
         """
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Audio file not found: {file_path}")
@@ -34,7 +37,7 @@ class TranscriptionService:
                     response_format=response_format,
                     temperature=temperature
                 )
-            # Ensure the transcription result is returned as a dictionary
-            return transcription.to_dict()  # Convert to a dict-like object if needed
+            # Convert the Groq response to a dict-like object
+            return transcription.to_dict()
         except Exception as e:
             raise RuntimeError(f"Failed to transcribe audio: {e}")

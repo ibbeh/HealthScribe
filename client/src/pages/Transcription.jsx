@@ -209,7 +209,7 @@ const Transcription = () => {
     formData.append("file", file);
 
     try {
-      const response = await fetch("/api/upload", {
+      const response = await fetch("http://127.0.0.1:5000/api/upload", {
         method: "POST",
         body: formData,
       });
@@ -219,7 +219,8 @@ const Transcription = () => {
       }
 
       const data = await response.json();
-      setTranscription(data.transcription);
+      console.log(data)
+      setTranscription(data.soap_notes_md);
     } catch (error) {
       console.error("Error during transcription:", error);
       setTranscription("An error occurred while transcribing the audio.");
