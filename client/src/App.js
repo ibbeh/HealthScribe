@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
 import DashboardPage from "./pages/Dashboard";
-// import Transcriptions from "./pages/Transcriptions";
-// import History from "./pages/History";
-// import Patients from "./pages/Patients";
+import History from "./pages/History";
+import Patients from "./pages/Patients";
+import Transcriptions from "./pages/Transcription";
 // import Settings from "./pages/Settings";
 // import SignIn from "./pages/SignIn";
 // import SignUp from "./pages/SignUp";
@@ -22,10 +22,12 @@ function App() {
           <Routes>
             {/* Authenticated Routes */}
             <Route path="/" element={<Home />} />
-            {/* <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/transcriptions" element={<Transcriptions />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/history" element={<History />} />
             <Route path="/patients" element={<Patients />} />
+            <Route path="/transcriptions" element={<Transcriptions />} />
+            {/*
+            <Route path="/transcriptions" element={<Transcriptions />} />
             <Route path="/settings" element={<Settings />} />
 
             <Route path="/sign-in" element={<SignIn />} />

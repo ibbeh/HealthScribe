@@ -16,7 +16,7 @@ export default function Sidebar() {
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
     { path: "/dashboard", icon: Calendar, label: "Dashboard" },
-    { path: "/transcriptions", icon: FileText, label: "Transcriptions" },
+    // { path: "/transcriptions", icon: FileText, label: "Transcriptions" },
     { path: "/history", icon: History, label: "History" },
     { path: "/patients", icon: Users, label: "Patients" },
   ];

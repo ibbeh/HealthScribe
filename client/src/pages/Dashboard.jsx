@@ -1,6 +1,6 @@
 import React from "react";
 import { PlusCircle, Search, Mic } from "lucide-react";
-
+import { Link } from "react-router-dom";
 function DashboardPage() {
   return (
     <div className="p-8">
@@ -9,10 +9,12 @@ function DashboardPage() {
           <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
           <p className="text-gray-600">Welcome back, Dr. Smith</p>
         </div>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <Link
+          to="/new-appointment"
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
           <PlusCircle className="h-5 w-5" />
           New Appointment
-        </button>
+        </Link>
       </div>
 
       <div className="relative mb-8">
