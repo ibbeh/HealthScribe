@@ -233,6 +233,7 @@ const Transcription = () => {
   const [soapNotesMD, setSoapNotesMD] = useState("");
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [healthReport, setHealthReport] = useState("");
+  const [summary, setSummary] = useState("");
   const [view, setView] = useState("transcription"); // Options: transcription, soap_notes, health_report
 
   const handleFileUpload = async (file) => {
@@ -255,6 +256,7 @@ const Transcription = () => {
       setTranscription(data.transcription);
       setSoapNotesMD(data.soap_notes_md || "");
       setHealthReport(data.health_report || "");
+      setSummary(data.summary || "");
     } catch (error) {
       console.error("Error during transcription:", error);
       setTranscription("An error occurred while transcribing the audio.");
@@ -321,6 +323,15 @@ const Transcription = () => {
                 }`}>
                 Health Report
               </button>
+              <button
+                onClick={() => setView("summary")}
+                className={`px-4 py-2 rounded text-white font-medium shadow ${
+                  view === "summary"
+                    ? "bg-blue-500"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}>
+                Summary
+              </button>
             </div>
 
             {view === "transcription" && (
@@ -348,6 +359,15 @@ const Transcription = () => {
                 </h2>
                 <ReactMarkdown className="mt-2 text-gray-800">
                   {healthReport || "No health report available."}
+                </ReactMarkdown>
+              </div>
+            )}
+
+            {view === "summary" && (
+              <div className="p-4 bg-white rounded shadow">
+                <h2 className="text-lg font-semibold text-gray-900">Summary</h2>
+                <ReactMarkdown className="mt-2 text-gray-800">
+                  {summary || "No summary available."}
                 </ReactMarkdown>
               </div>
             )}
