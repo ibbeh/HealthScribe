@@ -75,18 +75,21 @@
 
 3. **Setup Backend**
    - Create a virtual environment and activate it
-      ```bash
-    python -m venv venv
-    source venv/bin/activate # Mac
-    venv\Scripts\activate   # Windows
+   ```
+   python -m venv venv
+   source venv/bin/activate # Mac
+   venv\Scripts\activate   # Windows
+   ```
 
   - Install dependencies
-    ```bash
+    ```
     pip install -r requirements.txt
+    ```
 
     - Start the Flask Server:
-    ```bash
+    ```
     python app.py
+    ```
 
 4. **Access the application**
 Open http://localhost:3000 for the frontend and http://127.0.0.1:5000 for the backend.
