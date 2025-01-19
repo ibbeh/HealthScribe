@@ -228,7 +228,7 @@ import React, { useState, useRef } from "react";
 import { Plus } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
-// AudioRecorder.js
+/* ------------------------------ AudioRecorder.js ------------------------------ */
 export const AudioRecorder = ({ onRecordingComplete }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [audioURL, setAudioURL] = useState(null);
@@ -291,7 +291,7 @@ export const AudioRecorder = ({ onRecordingComplete }) => {
   );
 };
 
-// FileUploader.js
+/* ------------------------------ FileUploader.js ------------------------------ */
 export const FileUploader = ({ onFileUpload }) => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -315,19 +315,23 @@ export const FileUploader = ({ onFileUpload }) => {
   );
 };
 
-// TranscriptionView.js
-export const TranscriptionView = ({
-  transcription,
-  isLoading,
-  onSave,
-  onChange,
-}) => {
-  const [isEditing, setIsEditing] = useState(true); // Toggle between edit and preview modes
+/* ------------------------------ EditableMarkdown.js ------------------------------ */
+/**
+ * A reusable component to handle Edit/Preview modes for any markdown content.
+ * Props:
+ * - value (string): the current markdown text
+ * - onChange (function): callback when the text changes
+ * - label (string): label/title to display
+ */
+export const EditableMarkdown = ({ value, onChange, label }) => {
+  const [isEditing, setIsEditing] = useState(true);
 
   return (
-    <div className="p-4 bg-white rounded shadow">
-      <h2 className="text-lg font-semibold text-gray-900">Transcription</h2>
-      <div className="flex space-x-4 mt-4">
+    <div className="p-4 bg-white rounded shadow space-y-4">
+      <h2 className="text-lg font-semibold text-gray-900">{label}</h2>
+
+      {/* Edit / Preview Toggle */}
+      <div className="flex space-x-4">
         <button
           onClick={() => setIsEditing(true)}
           className={`px-4 py-2 rounded font-medium ${
@@ -346,37 +350,36 @@ export const TranscriptionView = ({
         </button>
       </div>
 
-      <div className="mt-4">
-        {isLoading ? (
-          <p className="text-gray-500 italic">Transcribing audio...</p>
-        ) : isEditing ? (
-          <textarea
-            value={transcription}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full mt-2 p-2 border rounded-md text-gray-800"
-            rows={8}
-          />
-        ) : (
-          // **** Updated part: Wrap ReactMarkdown in .prose for better styling
-          <div className="prose max-w-none">
-            <ReactMarkdown>{transcription}</ReactMarkdown>
-          </div>
-        )}
-      </div>
-
-      {isEditing && (
-        <button
-          onClick={onSave}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Save Transcription
-        </button>
+      {/* Content */}
+      {isEditing ? (
+        <textarea
+          className="w-full mt-2 p-2 border rounded-md text-gray-800"
+          rows={8}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <div className="prose max-w-none mt-2">
+          <ReactMarkdown>{value || "No content available."}</ReactMarkdown>
+        </div>
       )}
     </div>
   );
 };
 
-// PatientCard.js
+/* ------------------------------ Button.js ------------------------------ */
+export const Button = ({ children, className, ...props }) => {
+  return (
+    <button
+      className={`px-4 py-2 rounded text-white font-medium shadow ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+/* ------------------------------ PatientCard.js ------------------------------ */
 export const PatientCard = ({ name, lastVisit, documentCount, onClick }) => {
   return (
     <div
@@ -393,31 +396,22 @@ export const PatientCard = ({ name, lastVisit, documentCount, onClick }) => {
   );
 };
 
-// Button.js
-export const Button = ({ children, className, ...props }) => {
-  return (
-    <button
-      className={`px-4 py-2 rounded text-white font-medium shadow ${className}`}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-};
-
-// The main Transcription Component
+/* ------------------------------ Transcription Component ------------------------------ */
 const Transcription = () => {
+  // States for each text section
   const [transcription, setTranscription] = useState("");
   const [soapNotesMD, setSoapNotesMD] = useState("");
   const [healthReport, setHealthReport] = useState("");
   const [summary, setSummary] = useState("");
 
   const [isTranscribing, setIsTranscribing] = useState(false);
+
+  // Track which tab is active
   const [view, setView] = useState("transcription");
 
+  /* ---------- File Upload Logic ---------- */
   const handleFileUpload = async (file) => {
     setIsTranscribing(true);
-
     const formData = new FormData();
     formData.append("file", file);
 
@@ -432,11 +426,10 @@ const Transcription = () => {
       }
 
       const data = await response.json();
-
       setTranscription(data.transcription);
       setSoapNotesMD(data.soap_notes_md || "");
-      setHealthReport(data.health_report_md || ""); // ensure correct key
-      setSummary(data.summary_md || ""); // ensure correct key
+      setHealthReport(data.health_report_md || "");
+      setSummary(data.summary_md || "");
     } catch (error) {
       console.error("Error during transcription:", error);
       setTranscription("An error occurred while transcribing the audio.");
@@ -449,6 +442,17 @@ const Transcription = () => {
     await handleFileUpload(blob);
   };
 
+  /* ---------- Save All Logic (Placeholder) ---------- */
+  const handleSaveAll = () => {
+    console.log("Saving All...");
+    console.log("Transcription:", transcription);
+    console.log("SOAP Notes:", soapNotesMD);
+    console.log("Health Report:", healthReport);
+    console.log("Summary:", summary);
+    // Future: send this to your DB or backend endpoint
+  };
+
+  /* ---------- Mock Patients ---------- */
   const mockPatients = [
     { name: "John Doe", lastVisit: "2024-03-15", documentCount: 3 },
     { name: "Jane Smith", lastVisit: "2024-03-14", documentCount: 5 },
@@ -475,6 +479,7 @@ const Transcription = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Audio Recorder + File Uploader */}
             <AudioRecorder onRecordingComplete={handleRecordingComplete} />
             <FileUploader onFileUpload={handleFileUpload} />
 
@@ -524,52 +529,50 @@ const Transcription = () => {
 
             {/* Tab Content */}
             {view === "transcription" && (
-              <TranscriptionView
-                transcription={transcription}
-                isLoading={isTranscribing}
-                onChange={(newTranscription) => setTranscription(newTranscription)}
-                onSave={() => {
-                  console.log("Saving transcription:", transcription);
-                  // Add logic to save if needed
-                }}
+              <EditableMarkdown
+                value={transcription}
+                onChange={setTranscription}
+                label={
+                  isTranscribing
+                    ? "Transcription (Transcribing audio...)"
+                    : "Transcription"
+                }
               />
             )}
 
             {view === "soap_notes" && (
-              <div className="p-4 bg-white rounded shadow">
-                <h2 className="text-lg font-semibold text-gray-900">SOAP Notes</h2>
-                {/* .prose for Tailwind typography styling */}
-                <div className="prose max-w-none mt-2">
-                  <ReactMarkdown>
-                    {soapNotesMD || "No SOAP notes available."}
-                  </ReactMarkdown>
-                </div>
-              </div>
+              <EditableMarkdown
+                value={soapNotesMD}
+                onChange={setSoapNotesMD}
+                label="SOAP Notes"
+              />
             )}
 
             {view === "health_report" && (
-              <div className="p-4 bg-white rounded shadow">
-                <h2 className="text-lg font-semibold text-gray-900">Health Report</h2>
-                {/* .prose for Tailwind typography styling */}
-                <div className="prose max-w-none mt-2">
-                  <ReactMarkdown>
-                    {healthReport || "No health report available."}
-                  </ReactMarkdown>
-                </div>
-              </div>
+              <EditableMarkdown
+                value={healthReport}
+                onChange={setHealthReport}
+                label="Health Report"
+              />
             )}
 
             {view === "summary" && (
-              <div className="p-4 bg-white rounded shadow">
-                <h2 className="text-lg font-semibold text-gray-900">Summary</h2>
-                {/* .prose for Tailwind typography styling */}
-                <div className="prose max-w-none mt-2">
-                  <ReactMarkdown>
-                    {summary || "No summary available."}
-                  </ReactMarkdown>
-                </div>
-              </div>
+              <EditableMarkdown
+                value={summary}
+                onChange={setSummary}
+                label="Summary"
+              />
             )}
+
+            {/* Save All Button */}
+            <div className="text-right">
+              <Button
+                onClick={handleSaveAll}
+                className="bg-blue-600 hover:bg-blue-700 mt-4"
+              >
+                Save All
+              </Button>
+            </div>
           </div>
 
           {/* Right Column */}
